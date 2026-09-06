@@ -1,3 +1,3 @@
-"""NVIQ × Lemonade open local-AI evaluation toolkit."""
+"""NVIQ × Lemonade public local-AI evaluation toolkit."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
