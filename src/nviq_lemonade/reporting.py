@@ -47,6 +47,8 @@ def _markdown(report: dict) -> str:
 
     lines.extend([
         "",
+        "> Host-resource values are post-inference /v1/system-stats samples; maxima are maxima across those samples, not continuous in-request peaks.",
+        "",
         "> This report is produced by the open NVIQ × Lemonade evaluation suite. It is not a full NVIQ certification or Noct-Tech Reliability Audit.",
         "",
     ])
@@ -61,7 +63,7 @@ def _comparison_markdown(comparison: dict) -> str:
         "**Ranking policy:** behavioral pass rate first, then mean tokens/sec when available, then lower mean wall-clock latency.",
         f"**Behavioral leader:** `{comparison.get('best_behavioral_model', 'unknown')}`",
         "",
-        "| Rank | Model | Behavior | Mean tok/s | Mean TTFT | Mean wall | Peak GPU | Peak NPU |",
+        "| Rank | Model | Behavior | Mean tok/s | Mean TTFT | Mean wall | Max sampled GPU | Max sampled NPU |",
         "|---:|---|---:|---:|---:|---:|---:|---:|",
     ]
     for index, model_id in enumerate(comparison.get("ranking", []), start=1):
@@ -78,6 +80,8 @@ def _comparison_markdown(comparison: dict) -> str:
             f"{value('peak_gpu_percent')} | {value('peak_npu_percent')} |"
         )
     lines.extend([
+        "",
+        "> GPU/NPU values are maxima across post-inference `/v1/system-stats` samples, not continuous in-request peaks.",
         "",
         "> This ordering is a transparent public-demo heuristic, not the proprietary canonical NVIQ scorer.",
         "",
