@@ -49,6 +49,9 @@ class FakeClient:
     def stats(self):
         return {"tokens_per_second": 42.0}
 
+    def system_stats(self):
+        return {"cpu_percent": 10.0, "gpu_percent": 20.0, "vram_gb": 1.0, "npu_percent": None}
+
 
 def test_run_suite_combines_model_behavior_and_lemonade_telemetry():
     report = run_suite(FakeClient(), "Fixture-Model", CASES)
@@ -60,4 +63,40 @@ def test_run_suite_combines_model_behavior_and_lemonade_telemetry():
     assert len(report["results"]) == 3
     assert all("wall_time_ms" in row for row in report["results"])
     assert all(row["lemonade_stats"]["tokens_per_second"] == 42.0 for row in report["results"])
+    assert all("system_stats" in row for row in report["results"])
     assert report["lemonade"]["health"]["status"] == "ok"
+
+
+class TelemetryClient(FakeClient):
+    def __init__(self):
+        super().__init__()
+        self._stats = iter([
+            {"time_to_first_token": 0.1, "tokens_per_second": 20.0, "input_tokens": 10, "output_tokens": 4},
+            {"time_to_first_token": 0.2, "tokens_per_second": 30.0, "input_tokens": 20, "output_tokens": 5},
+            {"time_to_first_token": 0.3, "tokens_per_second": 40.0, "input_tokens": 30, "output_tokens": 6},
+        ])
+        self._system_stats = iter([
+            {"cpu_percent": 10.0, "gpu_percent": 30.0, "vram_gb": 1.5, "npu_percent": None},
+            {"cpu_percent": 25.0, "gpu_percent": 50.0, "vram_gb": 2.0, "npu_percent": 12.0},
+            {"cpu_percent": 15.0, "gpu_percent": None, "vram_gb": 1.75, "npu_percent": 8.0},
+        ])
+
+    def stats(self):
+        return next(self._stats)
+
+    def system_stats(self):
+        return next(self._system_stats)
+
+
+def test_run_suite_aggregates_available_runtime_telemetry():
+    report = run_suite(TelemetryClient(), "Fixture-Model", CASES)
+    perf = report["performance"]
+    assert perf["mean_time_to_first_token_s"] == 0.2
+    assert perf["mean_tokens_per_second"] == 30.0
+    assert perf["input_tokens_total"] == 60
+    assert perf["output_tokens_total"] == 15
+    assert perf["peak_cpu_percent"] == 25.0
+    assert perf["peak_gpu_percent"] == 50.0
+    assert perf["peak_vram_gb"] == 2.0
+    assert perf["peak_npu_percent"] == 12.0
+    assert len(report["results"]) == 3

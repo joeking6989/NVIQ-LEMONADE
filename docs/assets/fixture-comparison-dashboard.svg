@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820" role="img" aria-labelledby="title desc">
+  <title id="title">NVIQ × Lemonade fixture comparison dashboard</title>
+  <desc id="desc">Illustrative fixture preview comparing two local AI models across behavioral pass rate and Lemonade runtime telemetry. This is not hardware benchmark data.</desc>
+  <rect width="1400" height="820" fill="#0a0d12"/>
+  <rect x="42" y="38" width="1316" height="744" rx="28" fill="#111722" stroke="#283345"/>
+  <text x="86" y="104" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#f5f7fb">NVIQ × Lemonade</text>
+  <text x="86" y="140" font-family="Arial, sans-serif" font-size="17" fill="#9aabc1">Behavior + performance comparison • deterministic fixture preview</text>
+  <rect x="1125" y="78" width="186" height="44" rx="22" fill="#1b2734"/>
+  <text x="1218" y="106" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#f0cc59">FIXTURE DATA</text>
+
+  <text x="86" y="204" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#d9e2ee">Behavior-first ranking</text>
+  <text x="86" y="232" font-family="Arial, sans-serif" font-size="14" fill="#8092a8">Pass rate ranks first; throughput breaks behavioral ties.</text>
+
+  <rect x="86" y="268" width="585" height="192" rx="20" fill="#151e2b" stroke="#2d3d52"/>
+  <text x="118" y="309" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#ffffff">#1 Fixture-Model</text>
+  <text x="118" y="335" font-family="Arial, sans-serif" font-size="13" fill="#8fa1b7">llamacpp</text>
+  <text x="118" y="391" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#78d5a1">100%</text>
+  <text x="118" y="420" font-family="Arial, sans-serif" font-size="13" fill="#93a7bd">public-suite pass rate</text>
+  <text x="375" y="384" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#f5f7fb">42.0 tok/s</text>
+  <text x="375" y="414" font-family="Arial, sans-serif" font-size="13" fill="#93a7bd">mean throughput</text>
+
+  <rect x="697" y="268" width="585" height="192" rx="20" fill="#151e2b" stroke="#2d3d52"/>
+  <text x="729" y="309" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#ffffff">#2 Fixture-Model-B</text>
+  <text x="729" y="335" font-family="Arial, sans-serif" font-size="13" fill="#8fa1b7">ryzenai-llm</text>
+  <text x="729" y="391" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#f0a67a">66.7%</text>
+  <text x="729" y="420" font-family="Arial, sans-serif" font-size="13" fill="#93a7bd">public-suite pass rate</text>
+  <text x="986" y="384" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#f5f7fb">70.0 tok/s</text>
+  <text x="986" y="414" font-family="Arial, sans-serif" font-size="13" fill="#93a7bd">mean throughput</text>
+
+  <text x="86" y="520" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#d9e2ee">Lemonade runtime telemetry</text>
+  <rect x="86" y="548" width="1196" height="142" rx="18" fill="#0f151f" stroke="#253347"/>
+  <text x="118" y="586" font-family="Arial, sans-serif" font-size="13" fill="#8fa1b7">TTFT</text>
+  <text x="118" y="621" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#f5f7fb">0.20 s</text>
+  <text x="338" y="586" font-family="Arial, sans-serif" font-size="13" fill="#8fa1b7">CPU sample</text>
+  <text x="338" y="621" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#f5f7fb">12.5%</text>
+  <text x="548" y="586" font-family="Arial, sans-serif" font-size="13" fill="#8fa1b7">GPU sample</text>
+  <text x="548" y="621" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#f5f7fb">44.0%</text>
+  <text x="758" y="586" font-family="Arial, sans-serif" font-size="13" fill="#8fa1b7">VRAM sample</text>
+  <text x="758" y="621" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#f5f7fb">2.25 GiB</text>
+  <text x="978" y="586" font-family="Arial, sans-serif" font-size="13" fill="#8fa1b7">NPU sample</text>
+  <text x="978" y="621" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#f5f7fb">7.0%</text>
+
+  <line x1="86" y1="724" x2="1282" y2="724" stroke="#273548"/>
+  <text x="86" y="754" font-family="Arial, sans-serif" font-size="13" fill="#72859c">Illustrative deterministic fixture preview. Not measured AMD hardware performance.</text>
+</svg>

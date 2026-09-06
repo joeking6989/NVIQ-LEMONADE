@@ -13,6 +13,7 @@ def test_client_calls_required_and_optional_lemonade_endpoints():
         completion = client.chat("Fixture-Model", [{"role": "user", "content": "hello"}])
         assert completion["choices"][0]["message"]["content"] == "fixture response"
         assert client.stats()["tokens_per_second"] == 42.0
+        assert client.system_stats()["cpu_percent"] == 12.5
         assert client.system_info()["os"] == "fixture-os"
 
 
@@ -28,3 +29,11 @@ def test_client_normalizes_http_errors():
         client = LemonadeClient(base_url)
         with pytest.raises(LemonadeError, match="HTTP 500"):
             client.chat("Error-Model", [{"role": "user", "content": "hello"}])
+
+
+def test_client_reads_optional_system_stats():
+    with fixture_server() as (base_url, _handler):
+        client = LemonadeClient(base_url)
+        stats = client.system_stats()
+        assert stats["cpu_percent"] == 12.5
+        assert stats["gpu_percent"] == 44.0

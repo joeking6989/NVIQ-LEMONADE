@@ -16,7 +16,7 @@ class LemonadeClient:
     def _headers(self) -> dict[str, str]:
         headers = {
             "Accept": "application/json",
-            "User-Agent": "NVIQ-Lemonade/0.1",
+            "User-Agent": "NVIQ-Lemonade/0.2",
         }
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
@@ -81,6 +81,10 @@ class LemonadeClient:
 
     def stats(self) -> dict | None:
         result = self._request("GET", "/v1/stats", optional_404=True)
+        return result if isinstance(result, dict) else None
+
+    def system_stats(self) -> dict | None:
+        result = self._request("GET", "/v1/system-stats", optional_404=True)
         return result if isinstance(result, dict) else None
 
     def system_info(self) -> dict | None:
