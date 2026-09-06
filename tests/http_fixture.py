@@ -8,6 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 class FixtureHandler(BaseHTTPRequestHandler):
     last_authorization = None
+    last_model = None
 
     def log_message(self, format, *args):
         return
@@ -25,11 +26,17 @@ class FixtureHandler(BaseHTTPRequestHandler):
         if self.path == "/v1/health":
             self._send(200, {"status": "ok", "version": "fixture-1.0"})
         elif self.path == "/v1/models":
-            self._send(200, {"object": "list", "data": [{"id": "Fixture-Model", "downloaded": True, "recipe": "fixture"}]})
+            self._send(200, {
+                "object": "list",
+                "data": [
+                    {"id": "Fixture-Model", "downloaded": True, "recipe": "llamacpp"},
+                    {"id": "Fixture-Model-B", "downloaded": True, "recipe": "ryzenai-llm"},
+                ],
+            })
         elif self.path == "/v1/stats":
             self._send(200, {
-                "time_to_first_token": 0.25,
-                "tokens_per_second": 42.0,
+                "time_to_first_token": 0.2,
+                "tokens_per_second": 42.0 if type(self).last_model == "Fixture-Model" else 70.0,
                 "input_tokens": 12,
                 "output_tokens": 5,
             })
@@ -54,7 +61,21 @@ class FixtureHandler(BaseHTTPRequestHandler):
             if payload.get("model") == "Error-Model":
                 self._send(500, {"error": {"message": "fixture inference failure"}})
                 return
-            self._send(200, {"id": "fixture-completion", "choices": [{"message": {"role": "assistant", "content": "fixture response"}}]})
+
+            type(self).last_model = payload.get("model")
+            prompt = payload.get("messages", [{}])[-1].get("content", "")
+            if "Tuesday" in prompt:
+                response = "Tuesday is primary, Thursday is backup, mission ORBIT-7."
+            elif "indicator" in prompt:
+                response = "The current indicator is blue."
+            elif "Sensor A" in prompt and payload.get("model") == "Fixture-Model":
+                response = "The exact value is uncertain because the sensors disagree."
+            elif "Sensor A" in prompt:
+                response = "The exact true value is 42."
+            else:
+                response = "fixture response"
+
+            self._send(200, {"id": "fixture-completion", "choices": [{"message": {"role": "assistant", "content": response}}]})
         else:
             self._send(404, {"error": {"message": "not found"}})
 
@@ -62,6 +83,7 @@ class FixtureHandler(BaseHTTPRequestHandler):
 @contextmanager
 def fixture_server():
     FixtureHandler.last_authorization = None
+    FixtureHandler.last_model = None
     server = ThreadingHTTPServer(("127.0.0.1", 0), FixtureHandler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
