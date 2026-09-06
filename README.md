@@ -43,9 +43,9 @@ No web app, cloud service, JavaScript package, external font, or hosted dashboar
 
 ### UI preview
 
-![NVIQ × Lemonade fixture comparison dashboard](docs/assets/fixture-comparison-dashboard.png)
+![NVIQ × Lemonade fixture comparison dashboard](docs/assets/fixture-comparison-dashboard.svg)
 
-> **Illustrative fixture UI preview — not hardware benchmark data.** The screenshot is generated from the deterministic test fixture so reviewers can see the report surface without installing a model. Real measurements are only published with the provenance defined in `results/README.md`.
+> **Illustrative fixture UI preview — not hardware benchmark data.** The preview is generated from deterministic fixture values so reviewers can see the report surface without installing a model. Real measurements are only published with the provenance defined in `results/README.md`.
 
 ## Why this is different
 
@@ -208,13 +208,13 @@ The per-model report derives only from numeric values Lemonade actually exposes:
 - mean tokens per second;
 - total input/output tokens;
 - mean wall-clock latency;
-- peak sampled CPU utilization;
-- peak sampled memory usage;
-- peak sampled GPU utilization;
-- peak sampled VRAM usage;
-- peak sampled NPU utilization.
+- maximum sampled CPU utilization across completed cases;
+- maximum sampled memory usage across completed cases;
+- maximum sampled GPU utilization across completed cases;
+- maximum sampled VRAM usage across completed cases;
+- maximum sampled NPU utilization across completed cases.
 
-Unsupported telemetry stays unavailable (`null` / `—`). **NVIQ × Lemonade never invents a hardware metric.**
+These host-resource values are **post-inference snapshots**, not continuous in-request profiling. Unsupported telemetry stays unavailable (`null` / `—`). **NVIQ × Lemonade never invents a hardware metric.**
 
 Comparison ordering is deterministic:
 
