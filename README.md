@@ -1,66 +1,126 @@
 # NVIQ × Lemonade 🍋
 
-**Open cognitive + performance evaluation for local AI through Lemonade Server.**
+**Behavior + performance evaluation for local AI through Lemonade Server.**
 
-NVIQ × Lemonade is a public Noct-Tech project built for the **AMD Lemonade Developer Challenge**. It connects to a locally running Lemonade Server, discovers installed models, runs transparent cognitive-behavior probes, captures Lemonade performance/system telemetry, and produces reproducible JSON + Markdown reports.
+NVIQ × Lemonade is an open-source Noct-Tech project built for the **AMD Lemonade Developer Challenge**. It evaluates locally running models through Lemonade's real API surface, then places **behavioral reliability and hardware/runtime telemetry in the same report**.
 
-The project explores a simple question:
+> **The question:** when a model runs locally, can we measure what it preserves, how it reacts to new evidence, and whether it respects uncertainty — not only how fast it emits tokens?
 
-> **When a model runs locally, can we evaluate what it understands and preserves — not just how fast it generates tokens?**
+## Reviewer quick path — one command
 
-## What it does
+With Lemonade Server running and at least one local model downloaded:
 
-```text
-NVIQ × Lemonade
-      |
-      +--> discovers downloaded Lemonade models
-      +--> runs local chat probes through /v1/chat/completions
-      +--> evaluates three open cognitive-behavior families
-      +--> captures /v1/stats + /v1/system-info telemetry
-      +--> writes report.json + report.md
+```bash
+python -m pip install -e '.[dev]'
+nviq-lemonade demo --output-dir out/demo
 ```
 
-The initial open suite covers:
+Then open:
 
-- **Context Integrity** — does important information survive summarization/transformation?
-- **Prior-Contamination Resistance** — can current evidence override an incorrect historical prior?
-- **Confidence Discipline** — does the model preserve uncertainty when evidence is insufficient?
+```text
+out/demo/comparison.html
+```
 
-These are deliberately transparent public rules. They are **not** the proprietary full NVIQ scoring engine or a Noct-Tech NVIQ certification.
+`demo` automatically discovers downloaded **local** Lemonade models, evaluates up to two by default, captures runtime telemetry, and creates a self-contained visual comparison bundle.
 
-## Why Lemonade
+```text
+out/demo/
+├── comparison.json
+├── comparison.md
+├── comparison.html
+└── models/
+    ├── <model-a>/
+    │   ├── report.json
+    │   ├── report.md
+    │   └── report.html
+    └── <model-b>/
+        ├── report.json
+        ├── report.md
+        └── report.html
+```
 
-Lemonade provides a local-first AI runtime with an OpenAI-compatible API plus local lifecycle and telemetry endpoints. NVIQ × Lemonade uses that interface to evaluate model behavior and execution characteristics through the same local runtime surface.
+No web app, cloud service, JavaScript package, external font, or hosted dashboard is required to view the HTML report.
 
-Current v0.1 API surface:
+### UI preview
+
+![NVIQ × Lemonade fixture comparison dashboard](docs/assets/fixture-comparison-dashboard.png)
+
+> **Illustrative fixture UI preview — not hardware benchmark data.** The screenshot is generated from the deterministic test fixture so reviewers can see the report surface without installing a model. Real measurements are only published with the provenance defined in `results/README.md`.
+
+## Why this is different
+
+Most local-AI benchmarking stops at throughput, latency, and memory. NVIQ × Lemonade deliberately shows two dimensions together:
+
+| Dimension | Examples |
+|---|---|
+| **Behavior** | context integrity, prior-contamination resistance, confidence discipline |
+| **Runtime** | time-to-first-token, tokens/sec, wall time, CPU/GPU/NPU utilization, VRAM |
+
+The comparison ordering is intentionally **behavior first, speed second**. A faster model does not outrank a more behaviorally reliable model solely because it generates more tokens per second.
+
+This ordering is a transparent public-demo heuristic. It is **not** Noct-Tech's proprietary canonical NVIQ scorer or a Noct-Tech certification.
+
+## What v0.2 does
+
+```text
+                       NVIQ × Lemonade
+                              |
+                +-------------+-------------+
+                |                           |
+        public evaluation              Lemonade runtime
+                |                           |
+   +------------+------------+     +--------+----------------+
+   |            |            |     |        |        |       |
+ Context     Prior         Confidence  models   inference  telemetry
+ Integrity  Resistance    Discipline  /v1/...  chat API   stats/system
+   |            |            |          |        |        |
+   +------------+------------+----------+--------+--------+
+                              |
+                    behavior + performance
+                              |
+               JSON + Markdown + static HTML
+```
+
+The open suite currently covers:
+
+- **Context Integrity** — does decision-relevant information survive summarization/transformation?
+- **Prior-Contamination Resistance** — can current direct evidence override an incorrect historical prior?
+- **Confidence Discipline** — does the model preserve uncertainty when evidence is insufficient or contradictory?
+
+The rules and cases are deliberately readable and auditable.
+
+## Lemonade integration
+
+The project calls documented Lemonade endpoints directly:
 
 | Lemonade endpoint | Use |
 |---|---|
 | `GET /v1/health` | server status/version |
-| `GET /v1/models` | downloaded model discovery |
+| `GET /v1/models` | local model discovery |
 | `POST /v1/chat/completions` | benchmark inference |
-| `GET /v1/stats` | last-request performance telemetry |
+| `GET /v1/stats` | post-inference TTFT/token throughput/token counts |
+| `GET /v1/system-stats` | sampled CPU/RAM/GPU/VRAM/NPU utilization |
 | `GET /v1/system-info` | host/device information |
 
-Lemonade Server documentation: https://lemonade-server.ai/docs/
+Official Lemonade docs: https://lemonade-server.ai/docs/
 
 AMD Lemonade Developer Challenge: https://www.amd.com/en/developer/resources/technical-articles/2026/join-the-lemonade-developer-challenge.html
 
-## Quick start
+## Install
 
-### 1. Install and start Lemonade
+### 1. Install and start Lemonade Server
 
-Install Lemonade Server for your platform using the official guide:
+Follow the official installation guide:
 
 https://lemonade-server.ai/docs/guide/install/
 
-By default Lemonade serves locally on:
+The default local server is:
 
 ```text
 http://127.0.0.1:13305
 ```
 
-Install/download at least one model in Lemonade before running the suite.
+Download at least one local model in Lemonade.
 
 ### 2. Install NVIQ × Lemonade
 
@@ -70,23 +130,36 @@ cd NVIQ-LEMONADE
 python -m pip install -e '.[dev]'
 ```
 
-### 3. Check the local runtime
+### 3. Inspect the runtime
 
 ```bash
 nviq-lemonade doctor
 ```
 
-Example shape:
+### 4. Run the reviewer demo
 
-```text
-Lemonade: ok (version 9.x)
-Base URL: http://127.0.0.1:13305
-Downloaded models: 2
-  - Model-A [llamacpp]
-  - Model-B [ryzenai-llm]
+```bash
+nviq-lemonade demo --output-dir out/demo
 ```
 
-### 4. Run the open suite
+To evaluate more auto-discovered models:
+
+```bash
+nviq-lemonade demo --max-models 4 --output-dir out/demo
+```
+
+To explicitly control the models:
+
+```bash
+nviq-lemonade demo \
+  --model MODEL_A \
+  --model MODEL_B \
+  --output-dir out/demo
+```
+
+## Commands
+
+### Single model
 
 ```bash
 nviq-lemonade run \
@@ -94,26 +167,20 @@ nviq-lemonade run \
   --output-dir out/my-model
 ```
 
-Outputs:
+### Explicit comparison
 
-```text
-out/my-model/
-├── report.json
-└── report.md
+```bash
+nviq-lemonade compare \
+  --model MODEL_A \
+  --model MODEL_B \
+  --output-dir out/compare
 ```
 
-## Configuration
-
-Use a different Lemonade server:
+### Configuration
 
 ```bash
 export LEMONADE_BASE_URL='http://127.0.0.1:13305'
-```
-
-If your Lemonade instance requires authentication:
-
-```bash
-export LEMONADE_API_KEY='your-local-api-key'
+export LEMONADE_API_KEY='optional-local-api-key'
 ```
 
 Or pass values explicitly:
@@ -122,61 +189,85 @@ Or pass values explicitly:
 nviq-lemonade \
   --base-url http://127.0.0.1:13305 \
   --api-key "$LEMONADE_API_KEY" \
-  run --model YOUR_MODEL
+  demo
 ```
 
-## Evaluation methodology
+## Telemetry and comparison methodology
 
-The public cases live in [`cases/v0.1/public.json`](cases/v0.1/public.json). Every case declares its evaluation rule and expected observable evidence.
+Every case captures:
 
-### 1. Context Integrity
+- model response;
+- deterministic public pass/fail evidence;
+- wall-clock request latency;
+- Lemonade `/v1/stats` after inference, when available;
+- Lemonade `/v1/system-stats` sample after inference, when available.
 
-The model receives multiple decision-relevant facts and must transform the context without losing any required fact. The public evaluator checks that all declared facts remain observable in the response.
+The per-model report derives only from numeric values Lemonade actually exposes:
 
-### 2. Prior-Contamination Resistance
+- mean time to first token;
+- mean tokens per second;
+- total input/output tokens;
+- mean wall-clock latency;
+- peak sampled CPU utilization;
+- peak sampled memory usage;
+- peak sampled GPU utilization;
+- peak sampled VRAM usage;
+- peak sampled NPU utilization.
 
-The model receives a historical prior that conflicts with a current direct observation. The evaluator checks that the response follows the current evidence.
+Unsupported telemetry stays unavailable (`null` / `—`). **NVIQ × Lemonade never invents a hardware metric.**
 
-### 3. Confidence Discipline
+Comparison ordering is deterministic:
 
-The model receives explicitly insufficient/contradictory evidence. The evaluator checks that the answer communicates uncertainty rather than manufacturing certainty.
+1. higher public-suite pass rate;
+2. higher mean tokens/sec when available;
+3. lower mean wall-clock latency;
+4. model ID as a deterministic final tie-break.
 
-The implementation is intentionally easy to audit in [`src/nviq_lemonade/evaluation.py`](src/nviq_lemonade/evaluation.py).
+## Public evaluation methodology
 
-## Report contents
+Cases live in [`cases/v0.1/public.json`](cases/v0.1/public.json). The case schema remains intentionally simple so developers can inspect exactly what is being tested.
 
-A run records:
+The evaluator implementation is in [`src/nviq_lemonade/evaluation.py`](src/nviq_lemonade/evaluation.py).
 
-- selected Lemonade model metadata;
-- Lemonade server status/version;
-- local system/device information when exposed by the server;
-- the model response for each public case;
-- transparent pass/fail evidence;
-- wall-clock latency per case;
-- Lemonade `/v1/stats` data when available;
-- aggregate public-suite pass rate.
+### Context Integrity
 
-See [`examples/sample-report.md`](examples/sample-report.md) for an **illustrative fixture report**. It is intentionally not presented as real AMD hardware benchmark data.
+The model receives multiple decision-relevant facts and must transform the context without dropping any configured required fact.
+
+### Prior-Contamination Resistance
+
+The model receives a historical prior that conflicts with a current direct observation. Current evidence must win.
+
+### Confidence Discipline
+
+The model receives insufficient or contradictory evidence. It must express uncertainty rather than manufacture certainty.
+
+## Static visual reports
+
+`report.html` and `comparison.html` are generated by the Python standard library only. They are:
+
+- self-contained;
+- responsive;
+- dependency-free;
+- safe against raw model text being interpreted as HTML;
+- viewable directly from disk.
+
+The comparison dashboard deliberately makes behavioral score, tokens/sec, TTFT, wall time, and available accelerator telemetry visible together.
+
+## Real measurement policy
+
+Fixture tests prove the software path; they are **not hardware benchmarks**.
+
+Real model/hardware results are only publishable when produced by a live Lemonade run and accompanied by provenance. See [`results/README.md`](results/README.md).
+
+No fixture result is represented as AMD performance data.
 
 ## Architecture
 
-```text
-cases/v0.1/public.json
-          |
-          v
-   Benchmark Runner
-     /          \
-    v            v
-Lemonade       Public evaluator
-Server              |
-    |                |
-    +--- telemetry --+
-          |
-          v
- report.json + report.md
-```
+See [`docs/architecture.md`](docs/architecture.md).
 
-More detail: [`docs/architecture.md`](docs/architecture.md)
+Reviewer walkthrough: [`docs/reviewer-walkthrough.md`](docs/reviewer-walkthrough.md)
+
+Recording script: [`docs/demo-script.md`](docs/demo-script.md)
 
 ## NVIQ IP boundary
 
@@ -188,40 +279,56 @@ Noct-Tech's canonical **NVIQ** project remains private. This public repository d
 - private remediation logic;
 - unreleased research architecture.
 
-NVIQ × Lemonade is a separately authored open-source integration and public evaluation suite designed to be useful on its own.
+NVIQ × Lemonade is a separately authored open-source integration and public evaluation suite that is fully useful without access to the private repository.
 
-## Development
+## Development and verification
 
-Run the tests:
+Exact verification gate:
+
+```bash
+python scripts/verify.py
+```
+
+Equivalent manual commands:
 
 ```bash
 python -m pytest -q
-```
-
-Compile-check the package:
-
-```bash
 python -m compileall -q src
 ```
 
-The tests use an in-process Lemonade-compatible HTTP fixture, so CI does **not** require a GPU, NPU, model download, or live Lemonade installation.
+Tests use an in-process Lemonade-compatible HTTP fixture, so verification does not require a GPU, NPU, model download, or live Lemonade installation.
+
+### GitHub Actions note
+
+The repository includes a minimal Actions workflow using the same `scripts/verify.py` gate. A previous GitHub-hosted run failed before any runner was assigned or any workflow step executed; that is a hosted runner/account provisioning condition rather than a Python test failure. Local verification remains the source of evidence when GitHub does not provision a runner.
+
+## Challenge/demo material
+
+- [`docs/reviewer-walkthrough.md`](docs/reviewer-walkthrough.md) — fast reviewer path
+- [`docs/demo-script.md`](docs/demo-script.md) — exact 2–3 minute recording script
+- [`docs/discord-post.md`](docs/discord-post.md) — ready-to-post `#AMDDevChallenge` copy
+- [`RELEASE_NOTES_v0.2.0.md`](RELEASE_NOTES_v0.2.0.md) — release notes
 
 ## Status
 
-**v0.1 foundation:**
+**v0.2 reviewer demo:**
 
-- [x] Lemonade health/model discovery
+- [x] Lemonade local model discovery
 - [x] OpenAI-compatible chat integration
-- [x] Optional Lemonade request telemetry
-- [x] Local system/device metadata capture
-- [x] Three transparent public cognitive-evaluation families
-- [x] JSON + Markdown reports
+- [x] `/v1/stats` request telemetry
+- [x] `/v1/system-stats` CPU/GPU/NPU sampling
+- [x] `/v1/system-info` host/device capture
+- [x] Three transparent cognitive-behavior families
+- [x] Single-model JSON + Markdown + HTML reports
+- [x] Behavior-first multi-model comparison
+- [x] One-command reviewer demo
 - [x] Hardware-independent automated tests
-- [ ] Published real-device comparison results
-- [ ] Recorded AMD challenge demo
-- [ ] Expanded local-model comparison matrix
+- [x] Exact local/CI verification gate
+- [x] Recording/community/release documentation
+- [ ] Publish first provenance-complete real-device comparison
+- [ ] Upload a recorded live-Lemonade demo
 
-Real hardware results will only be published after they are actually measured; fixture data is never represented as AMD performance data.
+The final two items require a real Lemonade runtime/hardware session and a video/community account; the repository is prepared so those outputs can be created without further engineering changes.
 
 ## License
 
