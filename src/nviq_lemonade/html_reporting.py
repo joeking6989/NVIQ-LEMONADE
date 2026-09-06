@@ -44,9 +44,9 @@ def single_report_html(report: dict) -> str:
         _card("Mean tokens / sec", _num(perf.get("mean_tokens_per_second"))),
         _card("Mean TTFT", _num(perf.get("mean_time_to_first_token_s"), 3, " s")),
         _card("Mean wall time", _num(perf.get("mean_wall_time_ms"), 1, " ms")),
-        _card("Peak GPU", _num(perf.get("peak_gpu_percent"), 1, "%")),
-        _card("Peak VRAM", _num(perf.get("peak_vram_gb"), 2, " GiB")),
-        _card("Peak NPU", _num(perf.get("peak_npu_percent"), 1, "%")),
+        _card("Max sampled GPU", _num(perf.get("peak_gpu_percent"), 1, "%")),
+        _card("Max sampled VRAM", _num(perf.get("peak_vram_gb"), 2, " GiB")),
+        _card("Max sampled NPU", _num(perf.get("peak_npu_percent"), 1, "%")),
     ])
 
     rows = []
@@ -75,7 +75,7 @@ def single_report_html(report: dict) -> str:
         f"<h1>{escape(model_id)}</h1>"
         f'<div class="sub">{escape(str(report.get("suite", "")))} · Lemonade {escape(str(health.get("version", "unknown")))} · {escape(str(model.get("recipe", "unknown")))}</div>'
         f'<div class="grid">{cards}</div>'
-        '<div class="note">Behavioral results and runtime telemetry are shown together. This open report is not a full NVIQ certification or Noct-Tech Reliability Audit.</div>'
+        '<div class="note">Behavioral results and runtime telemetry are shown together. Host-resource maxima are maxima across post-inference samples, not continuous in-request peaks. This open report is not a full NVIQ certification or Noct-Tech Reliability Audit.</div>'
         "<h2>Case evidence</h2>"
         '<table><thead><tr><th>Case</th><th>Family</th><th>Result</th><th>Wall time</th><th>Evidence</th></tr></thead><tbody>'
         + "".join(rows)
@@ -123,9 +123,9 @@ def comparison_html(comparison: dict) -> str:
         f'<div class="note"><strong>Behavioral leader:</strong> {escape(best)}. A faster model does not outrank a more reliable model solely on generation speed.</div>'
         f'<div class="grid">{"".join(cards)}</div>'
         '<h2>Behavior + runtime matrix</h2>'
-        '<table><thead><tr><th>Rank</th><th>Model</th><th>Behavior</th><th>Tok/s</th><th>TTFT</th><th>Wall</th><th>Peak GPU / NPU</th></tr></thead><tbody>'
+        '<table><thead><tr><th>Rank</th><th>Model</th><th>Behavior</th><th>Tok/s</th><th>TTFT</th><th>Wall</th><th>Max sampled GPU / NPU</th></tr></thead><tbody>'
         + "".join(rows)
         + "</tbody></table>"
-        '<div class="note">Missing hardware metrics are shown as — because unsupported or unavailable telemetry is never guessed.</div>'
+        '<div class="note">Host-resource values are post-inference samples. Missing hardware metrics are shown as — because unsupported or unavailable telemetry is never guessed.</div>'
     )
     return _page("NVIQ × Lemonade — Model Comparison", body)
