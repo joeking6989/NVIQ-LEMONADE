@@ -27,7 +27,20 @@ class FixtureHandler(BaseHTTPRequestHandler):
         elif self.path == "/v1/models":
             self._send(200, {"object": "list", "data": [{"id": "Fixture-Model", "downloaded": True, "recipe": "fixture"}]})
         elif self.path == "/v1/stats":
-            self._send(200, {"tokens_per_second": 42.0})
+            self._send(200, {
+                "time_to_first_token": 0.25,
+                "tokens_per_second": 42.0,
+                "input_tokens": 12,
+                "output_tokens": 5,
+            })
+        elif self.path == "/v1/system-stats":
+            self._send(200, {
+                "cpu_percent": 12.5,
+                "memory_gb": 8.0,
+                "gpu_percent": 44.0,
+                "vram_gb": 2.25,
+                "npu_percent": 7.0,
+            })
         elif self.path == "/v1/system-info":
             self._send(200, {"os": "fixture-os", "devices": ["fixture-device"]})
         else:
