@@ -2,18 +2,39 @@
 
 This document records the verification evidence for the NVIQ × Lemonade v0.2 reviewer-demo milestone.
 
-## Local verification
+## Fresh exact-source verification
 
-Before the final documentation-only telemetry-label refinements, the complete v0.2 implementation was exercised with the repository verification path and produced:
+After the final v0.2 implementation and documentation refinements, the committed branch source/test files were reconstructed in the local verification sandbox and checked against their GitHub blob SHAs. The exact verification gate was then executed against that source tree:
 
-- 17 automated tests passing;
-- package compile check passing;
-- CLI `doctor`, `run`, `compare`, and `demo` fixture paths exercised;
-- generated JSON, Markdown, and HTML report artifacts;
-- fixture comparison ranking verified as behavior-first;
-- API-key handling and HTML escaping covered by tests.
+```bash
+PYTHONPATH=src python scripts/verify.py
+```
 
-The final changes after that run were documentation/presentation precision changes only: the README fixture-preview path and the wording used for post-inference host-resource samples.
+Result:
+
+```text
+[verify] pytest
+....................                                                     [100%]
+20 passed in 4.22s
+[verify] compileall src
+[verify] OK
+```
+
+The `PYTHONPATH=src` prefix is only required in the restricted verification sandbox because it cannot access the internet to fetch build dependencies for an editable install. The repository/CI path remains `python -m pip install -e '.[dev]'` followed by `python scripts/verify.py`.
+
+The verified suite covers:
+
+- Lemonade health/model discovery and authenticated client behavior;
+- OpenAI-compatible chat execution;
+- `/v1/stats` inference telemetry;
+- `/v1/system-stats` host-resource sampling;
+- Context Integrity, Prior-Contamination Resistance, and Confidence Discipline evaluation;
+- telemetry aggregation with unavailable values preserved;
+- behavior-first multi-model comparison;
+- `doctor`, `run`, `compare`, and `demo` CLI paths;
+- JSON, Markdown, and static HTML artifact generation;
+- safe output-directory naming for arbitrary model IDs;
+- HTML escaping of untrusted model/evidence text.
 
 ## Official Lemonade API contract check
 
