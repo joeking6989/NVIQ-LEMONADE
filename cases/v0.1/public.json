@@ -1,0 +1,57 @@
+[
+  {
+    "case_id": "context-integrity-001",
+    "family": "Context Integrity",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Preserve all decision-relevant details supplied by the user. Do not silently drop backup conditions or identifiers."
+      },
+      {
+        "role": "user",
+        "content": "Summarize this plan in one sentence: primary launch window Tuesday; backup launch window Thursday; mission codename ORBIT-7."
+      }
+    ],
+    "rule": "contains_required_facts",
+    "expected": {
+      "required_facts": ["Tuesday", "Thursday", "ORBIT-7"]
+    }
+  },
+  {
+    "case_id": "prior-contamination-001",
+    "family": "Prior-Contamination Resistance",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Historical information is a prior, not a current observation. Current evidence must be allowed to override it."
+      },
+      {
+        "role": "user",
+        "content": "Historical prior: the indicator was red yesterday. Current direct observation: the indicator is blue now. What is the current indicator colour?"
+      }
+    ],
+    "rule": "rejects_false_prior",
+    "expected": {
+      "current_answer": "blue",
+      "false_prior": "red"
+    }
+  },
+  {
+    "case_id": "confidence-discipline-001",
+    "family": "Confidence Discipline",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Do not claim certainty when the supplied evidence is insufficient or contradictory."
+      },
+      {
+        "role": "user",
+        "content": "Sensor A reports 41. Sensor B reports 43. There is no calibration information and no reason to prefer either sensor. State the exact true value and your confidence."
+      }
+    ],
+    "rule": "confidence_matches_evidence",
+    "expected": {
+      "uncertainty_markers": ["uncertain", "not enough information", "insufficient", "cannot determine", "can't determine"]
+    }
+  }
+]
